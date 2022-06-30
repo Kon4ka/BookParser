@@ -1,14 +1,10 @@
 ﻿using Parser.Core;
-using Parser.Core.Habra;
-using Parser.Core.MoscowBooks;
+using Parser.Core.BiblioGlobus;
+using Parser.Core.BookHouseArbat;
+using Parser.Core.MBookWork;
+using Parser.Core.YoungGuard;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Parser
@@ -25,17 +21,27 @@ namespace Parser
                     new HabraParser()
                 );*/
 
-            parser = new ParserWorker<string[]>(
+            /*parser = new ParserWorker<string[]>(
                     new MoscowParser()
+                );*/
+            /*parser = new ParserWorker<string[]>(
+                    new YoungGuardParser()
+                );*/
+/*            parser = new ParserWorker<string[]>(
+                    new BiblioGlobusParser()
+                );*/
+            parser = new ParserWorker<string[]>(
+                    new BookHouseArbatParser()
                 );
+
 
             parser.OnCompleted += Parser_OnCompleted;
             parser.OnNewData += Parser_OnNewData;
         }
 
-        private void Parser_OnNewData(object arg1, string[] arg2)
+        private void Parser_OnNewData(object arg1, string arg2)
         {
-            ListTitles.Items.AddRange(arg2);
+            ListTitles.Items.Add(arg2);
         }
 
         private void Parser_OnCompleted(object obj)
@@ -45,7 +51,10 @@ namespace Parser
 
         private void ButtonStart_Click(object sender, EventArgs e)
         {
-            parser.Settings = new MoscowParserSettings(new List<string> { "978-5-17-100294-7", "978-5-17-090436-5" });
+            ReadExelConfig simpleData = new ReadExelConfig();
+            simpleData.Initialisation();
+            //simpleData.containers[0].IsbnAndUrls.Values;
+            parser.Settings = new BookHouseArbatParserSettings(simpleData.containers[3].IsbnAndUrls);
             parser.Start();
         }
 

@@ -6,22 +6,28 @@ using System.Text;
 using System.Net;
 using System.Threading.Tasks;
 using System.IO;
+using Interfaces;
 
 namespace Parser.Core
 {
     class ParserWorker<T> where T : class
     {
 
-        IParser<T> parser;
+        IParser parser;
         IParserSettings parserSettings;
 
         HtmlLoader loader;
 
         bool isActive;
 
+        ~ParserWorker()
+        {
+            loader.Dispose();
+        }
+
         #region Properties
 
-        public IParser<T> Parser
+        public IParser Parser
         {
             get
             {
@@ -56,17 +62,17 @@ namespace Parser.Core
 
         #endregion
 
-        public event Action<object, T> OnNewData;
+        public event Action<object, string> OnNewData;
         public event Action<object> OnCompleted;
 
-        public ParserWorker(IParser<T> parser)
+        public ParserWorker(IParser parser)
         {
             this.parser = parser;
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
 
-        public ParserWorker(IParser<T> parser, IParserSettings parserSettings) : this(parser)
+        public ParserWorker(IParser parser, IParserSettings parserSettings) : this(parser)
         {
             this.parserSettings = parserSettings;
         }
@@ -85,9 +91,10 @@ namespace Parser.Core
         private async void Worker()
         {
             List<string> pages = new List<string> { "1", "2", "3" };    //Mock
-            List<string> isbns = new List<string> { "978-5-17-100294-7", "978-5-17-090436-5" };
-
-            foreach (var i in isbns)
+            List<string> isbns = new List<string> { "/book/917460/?recommended_by=instant_search&r46_search_query=978-5-17-100294-7",
+                                                    "/book/794389/?recommended_by=instant_search&r46_search_query=978-5-17-090436-5" };
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            foreach (var i in parserSettings.BaseUrl)
             {
                 if (!isActive)
                 {
@@ -95,7 +102,7 @@ namespace Parser.Core
                     return;
                 }
 
-                var source = await loader.GetSourceByPageId(i);
+                var source = await loader.GetSourceByPageId(i.Value);
                 using (FileStream fstream = new FileStream(Directory.GetCurrentDirectory()+"/aaa.txt", FileMode.OpenOrCreate))
                 {
                     // преобразуем строку в байты
@@ -108,14 +115,15 @@ namespace Parser.Core
 
                 var document = await domParser.ParseAsync(source);
 
-                var result = parser.Parse(document);
+                result[i.Key] = parser.Parse(document);
 
-                OnNewData?.Invoke(this, result);
+                OnNewData?.Invoke(this, result[i.Key]);
             }
 
             OnCompleted?.Invoke(this);
             isActive = false;
         }
+
 
 
     }

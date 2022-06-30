@@ -36,6 +36,14 @@
     <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
       <HintPath>packages\AngleSharp.0.9.9\lib\net45\AngleSharp.dll</HintPath>
     </Reference>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.16.0.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
+      <HintPath>packages\DocumentFormat.OpenXml.2.16.0\lib\net40\DocumentFormat.OpenXml.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.Office.Interop.Excel.15.0.4795.1001\lib\net20\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,17 +55,31 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Habra\HabraParser.cs" />
-    <Compile Include="Core\Habra\HabraSettings.cs" />
+    <Compile Include="Core\BiblioGlobus\BiblioGlobusData.cs" />
+    <Compile Include="Core\BiblioGlobus\BiblioGlobusParser.cs" />
+    <Compile Include="Core\BiblioGlobus\BiblioGlobusParserSettings.cs" />
+    <Compile Include="Core\BookHouseArbat\BookHouseArbatData.cs" />
+    <Compile Include="Core\BookHouseArbat\BookHouseArbatParser.cs" />
+    <Compile Include="Core\BookHouseArbat\BookHouseArbatParserSettings.cs" />
     <Compile Include="Core\HtmlLoader.cs" />
-    <Compile Include="Core\IParser.cs" />
-    <Compile Include="Core\IParserSettings.cs" />
-    <Compile Include="Core\MoscowBooks\HtmlMoscowLoader.cs" />
-    <Compile Include="Core\MoscowBooks\MoscowParser.cs" />
-    <Compile Include="Core\MoscowBooks\MoscowParserSettings.cs" />
+    <Compile Include="Core\Interfaces\IDataToFind.cs" />
+    <Compile Include="Core\Interfaces\IParser.cs" />
+    <Compile Include="Core\Interfaces\IParserSettings.cs" />
+    <Compile Include="Core\MBookWork\MoscowBookData.cs" />
+    <Compile Include="Core\MBookWork\MoscowParser.cs" />
+    <Compile Include="Core\MBookWork\MoscowParserSettings.cs" />
     <Compile Include="Core\ParserWorker.cs" />
+    <Compile Include="Core\ReadExelConfig.cs" />
+    <Compile Include="Core\YoungGuard\HtmlSearchLoader.cs" />
+    <Compile Include="Core\YoungGuard\IsbnToCurrentId.cs" />
+    <Compile Include="Core\YoungGuard\SearchParserSettingsYG.cs" />
+    <Compile Include="Core\YoungGuard\SearchParserYG.cs" />
+    <Compile Include="Core\YoungGuard\YoungGuardBookData.cs" />
+    <Compile Include="Core\YoungGuard\YoungGuardParser.cs" />
+    <Compile Include="Core\YoungGuard\YoungGuardParserSettings.cs" />
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
