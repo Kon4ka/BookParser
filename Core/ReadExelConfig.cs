@@ -16,11 +16,12 @@ namespace Parser.Core
 {
     class ReadExelConfig
     {
-        public Dictionary<string, List<string>> IsbnAndUrls;
+        public Dictionary<string, string> IsbnAndNames;
         public List<IDataToFind> containers;
         private int _collumCount = 0;
         private int _rowCount = 0;
-        private string path = "Входные_данные.csv";
+        private string inputPath = "./Properties/Входные_данные.csv";
+        private string outputPath = "Результат {Дата}.csv";
         private TextFieldParser reader;
         private List<List<string>> _csvTable;
 
@@ -28,12 +29,12 @@ namespace Parser.Core
         {
             try
             {
-                reader = new TextFieldParser("./Properties/" + path);
+                reader = new TextFieldParser( inputPath);
                 reader.TextFieldType = FieldType.Delimited;
                 reader.SetDelimiters(";");
                 _csvTable = new List<List<string>>();
 
-                IsbnAndUrls = new Dictionary<string, List<string>>();
+                IsbnAndNames = new Dictionary<string, string>();
                 containers = new List<IDataToFind>();
                 containers.Add(new MoscowBookData());
                 containers.Add(new YoungGuardBookData());
@@ -69,11 +70,42 @@ namespace Parser.Core
 
         public void Reading()
         {
+/*            for (int k = 1; k < _rowCount; k++)
+            {
+                IsbnAndNames[_csvTable[k][1]] = _csvTable[k][0];
+            }*/
             for (int j = 0; j < _collumCount - 2; j++)
             {
                 for (int k = 1; k < _rowCount; k++)
                 {
                     containers[j].IsbnAndUrls[_csvTable[k][1]] = _csvTable[k][j+2];
+                }
+            }
+        }
+
+        public void Writing()
+        {
+            var data = DateTime.Today.ToShortDateString();
+            outputPath = outputPath.Replace("{Дата}", data);
+            using (StreamWriter streamReader = new StreamWriter(outputPath, false, Encoding.Default))
+            {
+                //streamReader.WriteLine(data);
+                StringBuilder s = new StringBuilder();
+                s.Append(data+";"+"ISBN;");
+                for (int j = 2; j < _collumCount; j++)
+                    s.Append(_csvTable[0][j]+";");
+                streamReader.WriteLine(s.ToString());
+                s.Clear();
+                for (int i = 1; i < containers[0].IsbnAndCost.Count + 1; i++)
+                {
+                    s.Append(_csvTable[i][0] + ";");
+                    s.Append(_csvTable[i][1] + ";");
+                    foreach (var container in containers)
+                    {
+                        s.Append(container.IsbnAndCost[_csvTable[i][1]] + ";");
+                    }
+                    streamReader.WriteLine(s.ToString());
+                    s.Clear();
                 }
             }
         }

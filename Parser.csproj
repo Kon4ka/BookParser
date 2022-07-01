@@ -73,10 +73,6 @@
     <Compile Include="Core\MBookWork\MoscowParserSettings.cs" />
     <Compile Include="Core\ParserWorker.cs" />
     <Compile Include="Core\ReadExelConfig.cs" />
-    <Compile Include="Core\YoungGuard\HtmlSearchLoader.cs" />
-    <Compile Include="Core\YoungGuard\IsbnToCurrentId.cs" />
-    <Compile Include="Core\YoungGuard\SearchParserSettingsYG.cs" />
-    <Compile Include="Core\YoungGuard\SearchParserYG.cs" />
     <Compile Include="Core\YoungGuard\YoungGuardBookData.cs" />
     <Compile Include="Core\YoungGuard\YoungGuardParser.cs" />
     <Compile Include="Core\YoungGuard\YoungGuardParserSettings.cs" />

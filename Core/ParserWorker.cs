@@ -10,15 +10,15 @@ using Interfaces;
 
 namespace Parser.Core
 {
-    class ParserWorker<T> where T : class
+    public class ParserWorker<T> where T : class
     {
 
-        IParser parser;
-        IParserSettings parserSettings;
+        private IParser parser;
+        private IParserSettings parserSettings;
 
-        HtmlLoader loader;
+        private HtmlLoader loader;
 
-        bool isActive;
+        private bool isActive;
 
         ~ParserWorker()
         {
@@ -62,8 +62,8 @@ namespace Parser.Core
 
         #endregion
 
-        public event Action<object, string> OnNewData;
-        public event Action<object> OnCompleted;
+        public delegate void PrograssInBar(long i);
+        public static event PrograssInBar onCount;
 
         public ParserWorker(IParser parser)
         {
@@ -72,15 +72,20 @@ namespace Parser.Core
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
 
+        public void ChangeParser(IParser parser)
+        {
+            this.parser = parser;
+        }
+
         public ParserWorker(IParser parser, IParserSettings parserSettings) : this(parser)
         {
             this.parserSettings = parserSettings;
         }
 
-        public void Start()
+        public async Task<Dictionary<string, string>> StartAsync()
         {
             isActive = true;
-            Worker();
+            return await Worker();
         }
 
         public void Abort()
@@ -88,40 +93,53 @@ namespace Parser.Core
             isActive = false;
         }
 
-        private async void Worker()
+        private async Task<Dictionary<string, string>> Worker()
         {
-            List<string> pages = new List<string> { "1", "2", "3" };    //Mock
-            List<string> isbns = new List<string> { "/book/917460/?recommended_by=instant_search&r46_search_query=978-5-17-100294-7",
-                                                    "/book/794389/?recommended_by=instant_search&r46_search_query=978-5-17-090436-5" };
             Dictionary<string, string> result = new Dictionary<string, string>();
             foreach (var i in parserSettings.BaseUrl)
             {
                 if (!isActive)
                 {
-                    OnCompleted?.Invoke(this);
-                    return;
+                    //OnCompleted?.Invoke(this);
+                    return new Dictionary<string, string>();
+                }
+
+                if (i.Value == "")
+                {
+                    result[i.Key] = "Не отслеж.";
+                    onCount(1);
+                    continue;
                 }
 
                 var source = await loader.GetSourceByPageId(i.Value);
-                using (FileStream fstream = new FileStream(Directory.GetCurrentDirectory()+"/aaa.txt", FileMode.OpenOrCreate))
+/*                using (FileStream fstream = new FileStream(Directory.GetCurrentDirectory()+"/aaa.txt", FileMode.OpenOrCreate))
                 {
                     // преобразуем строку в байты
                     byte[] buffer = Encoding.Default.GetBytes(source);
                     // запись массива байтов в файл
                     await fstream.WriteAsync(buffer, 0, buffer.Length);
-                }
+                }*/
 
                 var domParser = new HtmlParser();
 
                 var document = await domParser.ParseAsync(source);
 
-                result[i.Key] = parser.Parse(document);
+                try
+                {
+                    result[i.Key] = parser.Parse(document);
+                    onCount(1);
+                }
+                catch (ArgumentException ex)
+                {
+                    result[i.Key] = "Цены нет на сайте, возможно товара нет в наличии или сайт изменил место вывода цены";
+                }
 
-                OnNewData?.Invoke(this, result[i.Key]);
+                //OnNewData?.Invoke(this, result[i.Key]);
             }
 
-            OnCompleted?.Invoke(this);
+            //OnCompleted?.Invoke(this);
             isActive = false;
+            return result;
         }
 
 
