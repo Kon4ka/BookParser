@@ -20,13 +20,14 @@ namespace Parser.Core
         public List<IDataToFind> containers;
         private int _collumCount = 0;
         private int _rowCount = 0;
-        private string inputPath = "./Properties/Входные_данные.csv";
+        private string inputPath;
         private string outputPath = "Результат {Дата}.csv";
         private TextFieldParser reader;
         private List<List<string>> _csvTable;
 
-        public ReadExelConfig()
+        public ReadExelConfig(string filepath = "./Properties/Входные_данные.csv")
         {
+            inputPath = filepath;
             try
             {
                 reader = new TextFieldParser( inputPath);
