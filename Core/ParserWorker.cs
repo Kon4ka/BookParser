@@ -111,7 +111,17 @@ namespace Parser.Core
                     continue;
                 }
 
-                var source = await loader.GetSourceByPageId(i.Value);
+                string source = "";
+                try
+                {
+                    source = await loader.GetSourceByPageId(i.Value);
+                }
+                catch (Exception ex)
+                {
+                    result[i.Key] = "Некорректная ссылка";
+                    onCount(1);
+                    continue;
+                }
 /*                using (FileStream fstream = new FileStream(Directory.GetCurrentDirectory()+"/aaa.txt", FileMode.OpenOrCreate))
                 {
                     // преобразуем строку в байты

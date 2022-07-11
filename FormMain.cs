@@ -7,6 +7,7 @@ using Parser.Core.YoungGuard;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -47,12 +48,16 @@ namespace Parser
             {
                 MessageBox.Show("Выберите файл со входными данными.");
                 загрузитьФайлToolStripMenuItem_Click(this, new EventArgs());
-                textBox1.Text = Path.GetFullPath(sourseFilePath);
+                if (sourseFilePath != "")
+                    textBox1.Text = Path.GetFullPath(sourseFilePath);
+                else
+                    textBox1.Text = "Cannot find Source file! Use File -> Load";
             }
             else
             {
                 sourseFilePath = "./Properties/Входные_данные.csv";
                 textBox1.Text = Path.GetFullPath("./Properties/Входные_данные.csv");
+                CollectInfo();
             }
             customParsers = new List<IParser>();
             customParsers.Add(new MoscowParser());
@@ -60,20 +65,31 @@ namespace Parser
             customParsers.Add(new BiblioGlobusParser());
             customParsers.Add(new BookHouseArbatParser());
 
+
+            parser = new ParserWorker<string[]>(
+                    new BookHouseArbatParser()
+                );
+            ParserWorker<string[]>.onCount += PrograssInBar;
+        }
+
+        public void CollectInfo()
+        {
             simpleData = new ReadExelConfig(sourseFilePath);
             simpleData.Initialisation();
             all = simpleData.containers[0].IsbnAndUrls.Count * simpleData.containers.Count;
+            var headers = simpleData.GetHeaders();
+            for (int i = 0; i < headers.Count; i++)
+            {
+                dataGridView1.Columns.Add($"column{i}", headers[i]);
+            }
+            if (dataGridView1.Rows.Count == 0)
+                dataGridView1.Rows.Add();
 
             customParserSettings = new List<IParserSettings>();
             customParserSettings.Add(new MoscowParserSettings(simpleData.containers[0].IsbnAndUrls));
             customParserSettings.Add(new YoungGuardParserSettings(simpleData.containers[1].IsbnAndUrls));
             customParserSettings.Add(new BiblioGlobusParserSettings(simpleData.containers[2].IsbnAndUrls));
             customParserSettings.Add(new BookHouseArbatParserSettings(simpleData.containers[3].IsbnAndUrls));
-
-            parser = new ParserWorker<string[]>(
-                    new BookHouseArbatParser()
-                );
-            ParserWorker<string[]>.onCount += PrograssInBar;
         }
 
         public void PrograssInBar(long i)
@@ -101,6 +117,11 @@ namespace Parser
 
         private async void ButtonStart_ClickAsync(object sender, EventArgs e)
         {
+            if (customParserSettings is null || customParserSettings.Count == 0)
+            {
+                MessageBox.Show("Вы не загрузили таблицу входных данных");
+                return;
+            }
             progressBar1.Visible = true;
             isAborted = false;
 /*            List<Task> tasks = new List<Task>();
@@ -117,7 +138,16 @@ namespace Parser
             }
             /*await Task.WhenAll(tasks.ToArray());*/
             progressBar1.Visible = false;
-            label8.Text = "Complete";
+            if (!isAborted)
+            {
+                label8.Text = "Complete";
+                label8.ForeColor = System.Drawing.Color.Green;
+            }
+            else
+            {
+                label8.Text = "Stoped";
+                label8.ForeColor = System.Drawing.Color.Red;
+            }
             if (!isAborted) 
                 simpleData.Writing();
         }
@@ -154,10 +184,13 @@ namespace Parser
             {
                 //Get the path of specified file
                 sourseFilePath = openFileDialog1.FileName;
+                textBox1.Text = Path.GetFullPath(sourseFilePath);
+                IsSourceEnable = true;
+                CollectInfo();
             }
             else
             {
-                isSourceEnable = false;
+                IsSourceEnable = false;
             }
         }
 
@@ -183,6 +216,70 @@ namespace Parser
             }
             else
                 System.Diagnostics.Process.Start(sourseFilePath);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if ((string)dataGridView1.Rows[0].Cells[0].Value is null|| 
+                    (string)dataGridView1.Rows[0].Cells[1].Value  is null ||
+                    (string)dataGridView1.Rows[0].Cells[0].Value == "" ||
+                    (string)dataGridView1.Rows[0].Cells[1].Value == "")
+                {
+                    MessageBox.Show("Вы забыли ввести ISBN или наименование книги.");
+                    return;
+                }
+                StringBuilder s = new StringBuilder();
+                for (int i = 0; i < dataGridView1.Rows[0].Cells.Count; i++)
+                {
+                    s.Append(dataGridView1.Rows[0].Cells[i].Value);
+                    if (i != dataGridView1.Rows[0].Cells.Count - 1) s.Append(";");
+                }
+                simpleData.WriteLineToSource(s.ToString());
+                label3.Text = "Added";
+                for (int i = 0; i < dataGridView1.Rows[0].Cells.Count; i++)
+                {
+                    dataGridView1.Rows[0].Cells[i].Value = "";
+                }
+                CollectInfo();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Возникла ошибка - " + ex.Message);
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            string isbn = textBox3.Text;
+
+            if (checkBox1.Checked)
+            {
+
+            }
+            else
+            {
+                string tempFile = Path.GetTempFileName();
+
+                using (var sr = new StreamReader(sourseFilePath, Encoding.Default))
+                {
+                    using (var sw = new StreamWriter(tempFile, false, Encoding.Default))
+                    {
+                        string line;
+
+                        while ((line = sr.ReadLine()) != null)
+                        {
+                            if (!line.Contains(isbn))
+                                sw.WriteLine(line);
+                        }
+                    }
+                }
+                File.Delete(sourseFilePath);
+                File.Move(tempFile, sourseFilePath);
+                File.Delete(tempFile);
+                label7.Text = "Deleted";
+            }
         }
     }
 }

@@ -30,9 +30,6 @@ namespace Parser.Core
             inputPath = filepath;
             try
             {
-                reader = new TextFieldParser( inputPath);
-                reader.TextFieldType = FieldType.Delimited;
-                reader.SetDelimiters(";");
                 _csvTable = new List<List<string>>();
 
                 IsbnAndNames = new Dictionary<string, string>();
@@ -54,7 +51,9 @@ namespace Parser.Core
         }
         public void Initialisation()
         {
-
+            reader = new TextFieldParser(inputPath);
+            reader.TextFieldType = FieldType.Delimited;
+            reader.SetDelimiters(";");
             while (!reader.EndOfData)
             {
                 _csvTable.Add(new List<string>());
@@ -67,20 +66,42 @@ namespace Parser.Core
                 throw new ArgumentException("У вас пустая таблица.");
 
             Reading();
+            reader.Close();
         }
 
         public void Reading()
         {
-/*            for (int k = 1; k < _rowCount; k++)
-            {
-                IsbnAndNames[_csvTable[k][1]] = _csvTable[k][0];
-            }*/
             for (int j = 0; j < _collumCount - 2; j++)
             {
                 for (int k = 1; k < _rowCount; k++)
                 {
                     containers[j].IsbnAndUrls[_csvTable[k][1]] = _csvTable[k][j+2];
                 }
+            }
+        }
+
+        public List<string> GetHeaders()
+        {
+            List<string> s = new List<string>();
+            s.Add("Name");
+            s.Add("ISBN");
+            for (int j = 2; j < _collumCount; j++)
+                s.Add(_csvTable[0][j]);
+            return s;
+        }
+
+        public void WriteLineToSource(string s)
+        {
+            try
+            {
+                using (StreamWriter streamWriter = new StreamWriter(inputPath, true, Encoding.Default))
+                {
+                    streamWriter.WriteLine(s);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
 
