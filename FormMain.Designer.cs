@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMain));
             this.ButtonStart = new System.Windows.Forms.Button();
             this.ButtonAbort = new System.Windows.Forms.Button();
@@ -47,6 +48,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button4 = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
@@ -58,7 +60,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.button4 = new System.Windows.Forms.Button();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tabControl1.SuspendLayout();
@@ -75,6 +77,7 @@
             this.ButtonStart.Size = new System.Drawing.Size(132, 31);
             this.ButtonStart.TabIndex = 5;
             this.ButtonStart.Text = "Start";
+            this.toolTip1.SetToolTip(this.ButtonStart, resources.GetString("ButtonStart.ToolTip"));
             this.ButtonStart.UseVisualStyleBackColor = true;
             this.ButtonStart.Click += new System.EventHandler(this.ButtonStart_ClickAsync);
             // 
@@ -86,6 +89,7 @@
             this.ButtonAbort.Size = new System.Drawing.Size(80, 31);
             this.ButtonAbort.TabIndex = 6;
             this.ButtonAbort.Text = "Stop";
+            this.toolTip1.SetToolTip(this.ButtonAbort, "Кнопка для прерывания операции. Никакие данные не будут сохранены в файл.");
             this.ButtonAbort.UseVisualStyleBackColor = true;
             this.ButtonAbort.Click += new System.EventHandler(this.ButtonAbort_Click);
             // 
@@ -95,6 +99,9 @@
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(515, 25);
             this.progressBar1.TabIndex = 7;
+            this.toolTip1.SetToolTip(this.progressBar1, "Скорость обработки зависит от вашего интернет-соединения и от скорокти работы сай" +
+        "та \r\nинтернет-магазинов. \r\n\r\nТ.е. если какой-то сайт перегружен, то время ожидан" +
+        "ия может сильно увеличится.");
             this.progressBar1.Visible = false;
             // 
             // label1
@@ -130,7 +137,7 @@
             // загрузитьФайлToolStripMenuItem
             // 
             this.загрузитьФайлToolStripMenuItem.Name = "загрузитьФайлToolStripMenuItem";
-            this.загрузитьФайлToolStripMenuItem.Size = new System.Drawing.Size(194, 24);
+            this.загрузитьФайлToolStripMenuItem.Size = new System.Drawing.Size(206, 24);
             this.загрузитьФайлToolStripMenuItem.Text = "Upload Source File";
             this.загрузитьФайлToolStripMenuItem.Click += new System.EventHandler(this.загрузитьФайлToolStripMenuItem_Click);
             // 
@@ -139,6 +146,7 @@
             this.оПрограммеToolStripMenuItem.Name = "оПрограммеToolStripMenuItem";
             this.оПрограммеToolStripMenuItem.Size = new System.Drawing.Size(57, 21);
             this.оПрограммеToolStripMenuItem.Text = "About";
+            this.оПрограммеToolStripMenuItem.Click += new System.EventHandler(this.оПрограммеToolStripMenuItem_Click);
             // 
             // dataGridView1
             // 
@@ -196,6 +204,7 @@
             this.button3.Size = new System.Drawing.Size(129, 26);
             this.button3.TabIndex = 6;
             this.button3.Text = "Show Source file";
+            this.toolTip1.SetToolTip(this.button3, resources.GetString("button3.ToolTip"));
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
@@ -207,6 +216,7 @@
             this.button2.Size = new System.Drawing.Size(129, 31);
             this.button2.TabIndex = 6;
             this.button2.Text = "Show Result";
+            this.toolTip1.SetToolTip(this.button2, resources.GetString("button2.ToolTip"));
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
@@ -222,6 +232,7 @@
             this.tabPage1.Size = new System.Drawing.Size(531, 158);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Add";
+            this.toolTip1.SetToolTip(this.tabPage1, "Вкладка для добавления новой книги в файл мониторинга");
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // button1
@@ -232,6 +243,9 @@
             this.button1.Size = new System.Drawing.Size(155, 31);
             this.button1.TabIndex = 11;
             this.button1.Text = "Add from table";
+            this.toolTip1.SetToolTip(this.button1, "Добавить данные из таблицы снизу в файл исходных данных. \r\nРезультат операции отр" +
+        "азиться в статусе левее.\r\n\r\nВнимание: Файл должен быть закрыт во время этой опер" +
+        "ации. ");
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -262,7 +276,22 @@
             this.tabPage2.Size = new System.Drawing.Size(531, 158);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Remove";
+            this.toolTip1.SetToolTip(this.tabPage2, "Вкладка для удаления книги из файла для мониторинга");
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button4
+            // 
+            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.2F);
+            this.button4.Location = new System.Drawing.Point(382, 121);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(134, 31);
+            this.button4.TabIndex = 16;
+            this.button4.Text = "Delete";
+            this.toolTip1.SetToolTip(this.button4, "Удалить книгу по указанному ISBN со всеми ссылками. \r\nРезультат операции отразитс" +
+        "я в статусе. \r\n\r\nВнимание: Файл должен быть закрыт во время этой операции. \r\nОпе" +
+        "рацию нельзя отменить.");
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // textBox4
             // 
@@ -356,33 +385,25 @@
             this.label2.Size = new System.Drawing.Size(165, 18);
             this.label2.TabIndex = 8;
             this.label2.Text = "Current sourse file path:";
+            this.toolTip1.SetToolTip(this.label2, "Указывает на файл, откуда были считаны данные для мониторинга. \r\nПо умолчанию: {т" +
+        "екущая папка, где лежит exe файл}/Properties/Входные_данные.csv\r\n\r\nИзменить файл" +
+        " можно нажав File -> Upload source file");
             // 
             // textBox1
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.Menu;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.2F);
-            this.textBox1.Location = new System.Drawing.Point(194, 34);
+            this.textBox1.Location = new System.Drawing.Point(187, 28);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(360, 47);
+            this.textBox1.Size = new System.Drawing.Size(369, 53);
             this.textBox1.TabIndex = 12;
             // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // button4
-            // 
-            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.2F);
-            this.button4.Location = new System.Drawing.Point(382, 121);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(134, 31);
-            this.button4.TabIndex = 16;
-            this.button4.Text = "Delete";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // FormMain
             // 
@@ -393,6 +414,7 @@
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FormMain";
@@ -443,6 +465,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 

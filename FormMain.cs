@@ -75,12 +75,31 @@ namespace Parser
         public void CollectInfo()
         {
             simpleData = new ReadExelConfig(sourseFilePath);
-            simpleData.Initialisation();
-            all = simpleData.containers[0].IsbnAndUrls.Count * simpleData.containers.Count;
-            var headers = simpleData.GetHeaders();
-            for (int i = 0; i < headers.Count; i++)
+            try
             {
-                dataGridView1.Columns.Add($"column{i}", headers[i]);
+                simpleData.Initialisation();
+            }
+            catch(ArgumentOutOfRangeException ex)
+            {
+                textBox1.Text = "Ошибка: Неверное форматирование таблицы. Попробуйте выделить белые поля в таблице исходных данных и нажать Delete на клавиатуре.";
+                IsSourceEnable = false;
+                return;
+            }
+            var validRes = simpleData.Validation();
+            if (validRes != "ОК")
+            {
+                MessageBox.Show(validRes);
+                IsSourceEnable = false;
+                return;
+            }
+            all = simpleData.containers[0].IsbnAndUrls.Count * simpleData.containers.Count;
+            if (dataGridView1.Columns.Count == 0)
+            {
+                var headers = simpleData.GetHeaders();
+                for (int i = 0; i < headers.Count; i++)
+                {
+                    dataGridView1.Columns.Add($"column{i}", headers[i]);
+                }
             }
             if (dataGridView1.Rows.Count == 0)
                 dataGridView1.Rows.Add();
@@ -148,8 +167,19 @@ namespace Parser
                 label8.Text = "Stoped";
                 label8.ForeColor = System.Drawing.Color.Red;
             }
-            if (!isAborted) 
-                simpleData.Writing();
+            if (!isAborted)
+            {
+                try
+                {
+                    simpleData.Writing();
+                }
+                catch(IOException ex)
+                {
+                    MessageBox.Show($"Невозможно получить доступ к файлу для вывода: \n\"Результат {DateTime.Today.ToShortDateString()}.csv\" \nЗакройте файл и повторите попытку.");
+                    label8.Text = "Error";
+                    label8.ForeColor = System.Drawing.Color.Red;
+                }
+            }
         }
 
         private async Task CollectInformationAsync(int i)
@@ -196,7 +226,7 @@ namespace Parser
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string outputPath = Path.GetFullPath($"Результат {DateTime.Today.ToShortDateString()}.csv");
+            string outputPath = Path.GetFullPath($"./Results/Результат {DateTime.Today.ToShortDateString()}.csv");
 
             if (!File.Exists(outputPath))
             {
@@ -215,7 +245,7 @@ namespace Parser
                 return;
             }
             else
-                System.Diagnostics.Process.Start(sourseFilePath);
+                System.Diagnostics.Process.Start(Path.GetFullPath(sourseFilePath));
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -233,20 +263,38 @@ namespace Parser
                 StringBuilder s = new StringBuilder();
                 for (int i = 0; i < dataGridView1.Rows[0].Cells.Count; i++)
                 {
-                    s.Append(dataGridView1.Rows[0].Cells[i].Value);
-                    if (i != dataGridView1.Rows[0].Cells.Count - 1) s.Append(";");
+                    if ((string)dataGridView1.Rows[0].Cells[i].Value != "") s.Append(dataGridView1.Rows[0].Cells[i].Value);
+                    if (i != dataGridView1.Rows[0].Cells.Count - 1) 
+                        s.Append(";");
                 }
-                simpleData.WriteLineToSource(s.ToString());
+                var addResult = simpleData.WriteLineToSource((string)dataGridView1.Rows[0].Cells[1].Value, s.ToString());
+                if (!addResult)
+                {
+                    MessageBox.Show("Книга с таким ISBN уже существует.\nДобавление невозможно");
+                    label3.Text = "Error";
+                    label3.ForeColor = System.Drawing.Color.Red;
+                    return;
+                }
                 label3.Text = "Added";
+                label3.ForeColor = System.Drawing.Color.Green;
                 for (int i = 0; i < dataGridView1.Rows[0].Cells.Count; i++)
                 {
                     dataGridView1.Rows[0].Cells[i].Value = "";
                 }
                 CollectInfo();
             }
+            catch (IOException ex)
+            {
+                MessageBox.Show("У вас открыт файл, который используется \nпрограммой как входные данные. \nЗакройте файл и повторите попытку.");
+                label3.Text = "Error";
+                label3.ForeColor = System.Drawing.Color.Red;
+                return;
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Возникла ошибка - " + ex.Message);
+                label3.Text = "Error";
+                label3.ForeColor = System.Drawing.Color.Red;
             }
         }
 
@@ -260,26 +308,41 @@ namespace Parser
             }
             else
             {
-                string tempFile = Path.GetTempFileName();
-
-                using (var sr = new StreamReader(sourseFilePath, Encoding.Default))
+                try
                 {
-                    using (var sw = new StreamWriter(tempFile, false, Encoding.Default))
-                    {
-                        string line;
 
-                        while ((line = sr.ReadLine()) != null)
+                    string tempFile = Path.GetTempFileName();
+
+                    using (var sr = new StreamReader(sourseFilePath, Encoding.Default))
+                    {
+                        using (var sw = new StreamWriter(tempFile, false, Encoding.Default))
                         {
-                            if (!line.Contains(isbn))
-                                sw.WriteLine(line);
+                            string line;
+
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                if (!line.Contains(isbn))
+                                    sw.WriteLine(line);
+                            }
                         }
                     }
+                    File.Delete(sourseFilePath);
+                    File.Move(tempFile, sourseFilePath);
+                    File.Delete(tempFile);
+                    label7.Text = "Deleted";
                 }
-                File.Delete(sourseFilePath);
-                File.Move(tempFile, sourseFilePath);
-                File.Delete(tempFile);
-                label7.Text = "Deleted";
+                catch (IOException ex)
+                {
+                    MessageBox.Show("У вас открыт файл, который используется \nпрограммой как входные данные. \nЗакройте файл и повторите попытку.");
+                    label7.Text = "Error";
+                }
             }
+        }
+
+        private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form1 about = new Form1();
+            about.Show();
         }
     }
 }

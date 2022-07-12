@@ -117,43 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>289, 17</value>
-  </metadata>
-  <data name="ButtonStart.ToolTip" xml:space="preserve">
-    <value>Нажмине для начала сбора информации по сайтам из файла. Процесс может занять время.
-Статус обработки будет показан на полосе загрузки снизу и прн завершении 
-выведется статус "Complete" правее.
-
-Внимание: перед нажатием Start, убедитесь, что файл с
- исходными данными и результатом закрыты
-</value>
-  </data>
-  <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <data name="button3.ToolTip" xml:space="preserve">
-    <value>Открыть в Excel таблицу исходных данных. 
-По умолчанию файл исходных данных лежит:
-{текущая папка, где лежит exe файл}/Properties/Входные_данные.csv
-
-Примечание: Храните копию файла исходных данных на всякий случай, 
-поскольку в ходе программы содержимое файла исходных данных 
-может меняться. </value>
-  </data>
-  <data name="button2.ToolTip" xml:space="preserve">
-    <value>Открыть в Excel таблицу с резутьтатами мониторинга (т.е. таблицу, 
-датированную сегодняшним днем). 
-Таблица результатов генерируется по адресу: 
-{текущая папка, где лежит exe файл}/Results/Результат {Дата}.csv
-
-
-
-</value>
-  </data>
-  <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>139, 17</value>
-  </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>

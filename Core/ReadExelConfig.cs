@@ -21,7 +21,7 @@ namespace Parser.Core
         private int _collumCount = 0;
         private int _rowCount = 0;
         private string inputPath;
-        private string outputPath = "Результат {Дата}.csv";
+        private string outputPath = "./Results/Результат {Дата}.csv";
         private TextFieldParser reader;
         private List<List<string>> _csvTable;
 
@@ -51,33 +51,79 @@ namespace Parser.Core
         }
         public void Initialisation()
         {
-            reader = new TextFieldParser(inputPath);
-            reader.TextFieldType = FieldType.Delimited;
-            reader.SetDelimiters(";");
-            while (!reader.EndOfData)
+            try
             {
-                _csvTable.Add(new List<string>());
-                _csvTable[_rowCount++] = reader.ReadFields().ToList();
+                reader = new TextFieldParser(inputPath, Encoding.Default);
+                reader.TextFieldType = FieldType.Delimited;
+                reader.SetDelimiters(";");
+                while (!reader.EndOfData)
+                {
+                    _csvTable.Add(new List<string>());
+                    _csvTable[_rowCount++] = reader.ReadFields().ToList();
+                }
+                _rowCount = _csvTable.Count;
+                _collumCount = _csvTable[_rowCount - 1].Count;
+
+                if (_collumCount == 0 || _rowCount == 0)
+                    throw new ArgumentException("У вас пустая таблица.");
+
+                Reading();
+                reader.Close();
             }
-            _rowCount = _csvTable.Count;
-            _collumCount = _csvTable[_rowCount-1].Count;
+            catch (ArgumentOutOfRangeException ex)
+            {
+                throw ex;
+            }
+        }
 
-            if (_collumCount == 0 || _rowCount == 0)
-                throw new ArgumentException("У вас пустая таблица.");
+        public string Validation()
+        {
+/*            Dictionary<string, int> check = new Dictionary<string, int>();
+            for (int k = 1; k < _rowCount; k++)
+            {
+                if (!check.ContainsKey(_csvTable[k][0]))
+                    check.Add(_csvTable[k][0], 0);
+                check[_csvTable[k][0]]++;
+                if (check[_csvTable[k][0]] > 1)
+                    return $"Ошибка: В названии книг встречаются повторы. \nПример: {_csvTable[k][0]}";
+            }*/
+/*            if (check.Count < _rowCount - 1)
+                return "Ошибка: В названии книг встречаются повторы.";*/
 
-            Reading();
-            reader.Close();
+            for (int i = 0; i < _collumCount - 2; i++)
+            {
+                for (int j = 1; j < _rowCount; j++)
+                {
+                    if (_csvTable[j][i + 2] == "") continue;
+                    if (_csvTable[j][i + 2].Length < 4||
+                        _csvTable[j][i + 2][0] != 'h' ||
+                        _csvTable[j][i + 2][1] != 't' ||
+                        _csvTable[j][i + 2][2] != 't' ||
+                        _csvTable[j][i + 2][3] != 'p' )
+                        return $"Ошибка: В ячейке [{j+1}][{i+1}] стоит не ссылка, а \"{_csvTable[j][i + 2]}\".";
+                }
+            }
+
+            return "ОК";
         }
 
         public void Reading()
         {
-            for (int j = 0; j < _collumCount - 2; j++)
+            try
             {
-                for (int k = 1; k < _rowCount; k++)
+                for (int j = 0; j < _collumCount - 2; j++) //не оставлять наименования без ссылок
                 {
-                    containers[j].IsbnAndUrls[_csvTable[k][1]] = _csvTable[k][j+2];
+                    for (int k = 1; k < _rowCount; k++) // Не должно быть повторяющихся разделителей
+                    {
+                        containers[j].IsbnAndUrls[_csvTable[k][1]] = _csvTable[k][j + 2];
+                    }
                 }
             }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                throw ex;
+            }
+
         }
 
         public List<string> GetHeaders()
@@ -90,14 +136,17 @@ namespace Parser.Core
             return s;
         }
 
-        public void WriteLineToSource(string s)
+        public bool WriteLineToSource(string isbn,string s)
         {
+            if (containers[0].IsbnAndUrls.ContainsKey(isbn))
+                return false;
             try
             {
                 using (StreamWriter streamWriter = new StreamWriter(inputPath, true, Encoding.Default))
                 {
                     streamWriter.WriteLine(s);
                 }
+                return true;
             }
             catch (Exception ex)
             {
@@ -107,16 +156,19 @@ namespace Parser.Core
 
         public void Writing()
         {
+            if (!Directory.Exists("./Results/"))
+                Directory.CreateDirectory("./Results/");
+
             var data = DateTime.Today.ToShortDateString();
             outputPath = outputPath.Replace("{Дата}", data);
-            using (StreamWriter streamReader = new StreamWriter(outputPath, false, Encoding.Default))
+            using (StreamWriter streamWriter = new StreamWriter(outputPath, false, Encoding.Default))
             {
                 //streamReader.WriteLine(data);
                 StringBuilder s = new StringBuilder();
                 s.Append(data+";"+"ISBN;");
                 for (int j = 2; j < _collumCount; j++)
                     s.Append(_csvTable[0][j]+";");
-                streamReader.WriteLine(s.ToString());
+                streamWriter.WriteLine(s.ToString());
                 s.Clear();
                 for (int i = 1; i < containers[0].IsbnAndCost.Count + 1; i++)
                 {
@@ -126,7 +178,7 @@ namespace Parser.Core
                     {
                         s.Append(container.IsbnAndCost[_csvTable[i][1]] + ";");
                     }
-                    streamReader.WriteLine(s.ToString());
+                    streamWriter.WriteLine(s.ToString());
                     s.Clear();
                 }
             }

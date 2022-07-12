@@ -22,7 +22,7 @@ namespace Parser.Core
 
         ~ParserWorker()
         {
-            loader.Dispose();
+            if (!(loader is null)) loader.Dispose();
         }
 
         #region Properties
