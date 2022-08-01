@@ -321,7 +321,7 @@ namespace Parser
 
                             while ((line = sr.ReadLine()) != null)
                             {
-                                if (!line.Contains(isbn))
+                                if (!line.Contains(";"+isbn+";"))
                                     sw.WriteLine(line);
                             }
                         }
